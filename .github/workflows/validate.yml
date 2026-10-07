@@ -1,0 +1,35 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          shellcheck install-xroad-nftables.sh tests/scenarios.sh
+
+      # The files in nftables/ must stay identical to the blocks in the baseline.
+      - name: nftables/ matches the baseline document
+        run: |
+          block() { awk -v h="$1" '$0 ~ h {f=1} f && /^```nft/ {p=1; next} p && /^```/ {exit} p' xroad-nftables-security-baseline.md; }
+          block '^## 6\\.' | diff -u - nftables/xroad-variables.nft
+          block '^## 7\\.' | diff -u - nftables/nftables.conf
+
+      # Runs in a container so the firewall changes stay in its own network namespace.
+      - name: Install script scenarios (Ubuntu 24.04)
+        run: |
+          docker run --rm --cap-add NET_ADMIN -v "$PWD":/repo:ro -w /repo ubuntu:24.04 bash -c '
+            apt-get update -qq && apt-get install -y -qq nftables iproute2 > /dev/null
+            nft --version
+            bash tests/scenarios.sh'
