@@ -789,7 +789,7 @@ table inet xroad_filter {
         # Rate limiting prevents scans or attacks from generating
         # excessive kernel logs.
         limit rate 5/second burst 20 packets \
-            counter log prefix "NFT-XROAD-IN-DROP " level warning
+            counter log prefix "NFT-XROAD-IN-DROP " level warn
 
         counter drop
     }
@@ -890,7 +890,7 @@ table inet xroad_filter {
         # Log denied outbound connections. This is useful for
         # detecting missing dependencies and unexpected egress.
         limit rate 5/second burst 20 packets \
-            counter log prefix "NFT-XROAD-OUT-DROP " level warning
+            counter log prefix "NFT-XROAD-OUT-DROP " level warn
 
         counter drop
     }
@@ -903,7 +903,7 @@ table inet xroad_filter {
         # general-purpose router. Forwarded traffic is therefore
         # denied and logged at a controlled rate.
         limit rate 2/second burst 10 packets \
-            counter log prefix "NFT-XROAD-FWD-DROP " level warning
+            counter log prefix "NFT-XROAD-FWD-DROP " level warn
 
         counter drop
     }
@@ -1295,14 +1295,15 @@ sudo nft -c -f /etc/nftables.conf
 
 The `-c` option checks the ruleset without applying it. Do not continue if validation returns an error.
 
-Review the file for unresolved example values:
+Review the files for unresolved example values. Comment lines are excluded, because the template comments contain documentation-range examples:
 
 ```bash
-grep -nE 'CHANGE_ME|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.' \
-  /etc/nftables.conf /etc/nftables.d/xroad-variables.nft
+grep -nHE 'CHANGE_ME|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.' \
+  /etc/nftables.conf /etc/nftables.d/xroad-variables.nft \
+  | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'
 ```
 
-Production deployment should return no unresolved placeholder addresses.
+Production deployment should return no output.
 
 ### 15.7 Protect administrative access
 

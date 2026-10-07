@@ -1,0 +1,377 @@
+# ============================================================
+# X-Road deployment parameters
+# ============================================================
+#
+# This file contains environment-specific values only.
+# Do not define firewall policy or filtering rules here.
+#
+# Replace every CHANGE_ME value before activation.
+#
+# Validate the complete configuration after any change:
+#
+#   sudo nft -c -f /etc/nftables.conf
+#
+# Examples below are syntax examples only. Addresses from
+# 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24 are
+# documentation ranges and must not be copied into production.
+#
+# Do not use example or documentation IP addresses in
+# production configuration.
+
+
+# ============================================================
+# Value syntax quick reference
+# ============================================================
+#
+# Use commas to separate multiple addresses or networks.
+#
+# One IP address:
+#   define CENTRAL_SERVERS = { 203.0.113.30 }
+#
+# Multiple IP addresses:
+#   define CENTRAL_SERVERS = {
+#       203.0.113.30,
+#       203.0.113.31,
+#       203.0.113.32
+#   }
+#
+# One network:
+#   define ADMIN_NETWORKS = { 10.30.30.0/24 }
+#
+# Multiple networks:
+#   define ADMIN_NETWORKS = {
+#       10.30.30.0/24,
+#       10.40.40.0/24
+#   }
+#
+# A single value may be written on one line. For two or more
+# values, one entry per line is recommended for easier review
+# and change control.
+#
+# Do not add a comma after the final entry. This convention
+# keeps the configuration consistent and easy to review.
+
+
+# ------------------------------------------------------------
+# Network interfaces
+# ------------------------------------------------------------
+
+# Interface used for communication with X-Road infrastructure,
+# peer Security Servers and external trust services.
+#
+# Identify the correct interface with:
+#   ip -br address
+#   ip route
+# Example: define EXT_IF = "ens18"
+define EXT_IF = "CHANGE_ME"
+
+
+# Interface connected to Consumer and Producer Information
+# Systems.
+#
+# If the deployment uses a single interface for external and
+# internal traffic, document that design and set the appropriate
+# interface name here.
+# Example: define INT_IF = "ens19"
+define INT_IF = "CHANGE_ME"
+
+
+# Interface used for administrative access.
+#
+# A dedicated management network, VPN or bastion path is
+# preferred for SSH and X-Road administration.
+# Example: define MGMT_IF = "ens20"
+define MGMT_IF = "CHANGE_ME"
+
+
+# ------------------------------------------------------------
+# Peer Security Servers
+# ------------------------------------------------------------
+
+# IP addresses of peer Security Servers authorised to exchange
+# X-Road messages with this Security Server when the Operator
+# has selected the source-IP allowlisting model.
+#
+# OPERATOR POLICY DECISION:
+# X-Road does not require universal source-IP allowlisting for
+# peer message exchange. This baseline uses allowlisting as the
+# restrictive deployment model. Operators may choose public
+# reachability when it is consistent with their security and
+# operational requirements.
+#
+# These addresses are used for TCP/5500 and TCP/5577.
+#
+# Maintain this list from the authoritative X-Road instance
+# inventory. Remove obsolete addresses through normal change
+# control.
+# Example with multiple peer servers:
+#   define PEER_SECURITY_SERVERS = {
+#       203.0.113.10,
+#       203.0.113.11,
+#       203.0.113.12
+#   }
+define PEER_SECURITY_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Management Security Server
+# ------------------------------------------------------------
+
+# IP address(es) of the Security Server providing X-Road
+# management services for this instance.
+#
+# Keep management servers separate from ordinary peers so that
+# management traffic can be reviewed independently.
+# Example with one server:
+#   define MANAGEMENT_SECURITY_SERVERS = { 203.0.113.20 }
+#
+# Example with multiple servers:
+#   define MANAGEMENT_SECURITY_SERVERS = {
+#       203.0.113.20,
+#       203.0.113.21
+#   }
+define MANAGEMENT_SECURITY_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Monitoring Security Server
+# ------------------------------------------------------------
+
+# IP address(es) of the Security Server authorised to perform
+# central monitoring of this Security Server.
+#
+# Do not add ordinary member Security Servers to this group.
+# Example with one server:
+#   define MONITORING_SECURITY_SERVERS = { 203.0.113.21 }
+#
+# Multiple servers use comma-separated entries:
+#   define MONITORING_SECURITY_SERVERS = {
+#       203.0.113.21,
+#       203.0.113.22
+#   }
+define MONITORING_SECURITY_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Central Server
+# ------------------------------------------------------------
+
+# IP address(es) of the Central Server for this X-Road instance.
+#
+# Used for Central Server communication and retrieval of global
+# configuration.
+#
+# Values should come from the X-Road Operator's authoritative
+# infrastructure configuration.
+# Example with one server:
+#   define CENTRAL_SERVERS = { 203.0.113.30 }
+#
+# Example with multiple servers:
+#   define CENTRAL_SERVERS = {
+#       203.0.113.30,
+#       203.0.113.31
+#   }
+define CENTRAL_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Consumer Information Systems
+# ------------------------------------------------------------
+
+# Hosts or networks authorised to submit requests through this
+# Security Server.
+#
+# These systems normally use TCP/8080 and/or TCP/8443.
+#
+# Use the smallest practical network range. Avoid authorising
+# an entire internal network when the actual systems can be
+# identified more precisely.
+# Example with one network:
+#   define CONSUMER_IS_NETWORKS = { 10.10.10.0/24 }
+#
+# Example with multiple networks:
+#   define CONSUMER_IS_NETWORKS = {
+#       10.10.10.0/24,
+#       10.10.20.0/24
+#   }
+define CONSUMER_IS_NETWORKS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Producer Information Systems
+# ------------------------------------------------------------
+
+# Hosts or networks containing services published through this
+# Security Server.
+#
+# The Security Server connects to these systems when processing
+# requests for locally registered X-Road services.
+#
+# Application ports other than those defined in the baseline
+# must be authorised explicitly in the firewall policy.
+# Example with one network:
+#   define PRODUCER_IS_NETWORKS = { 10.20.20.0/24 }
+#
+# Example with multiple networks:
+#   define PRODUCER_IS_NETWORKS = {
+#       10.20.20.0/24,
+#       10.20.30.0/24
+#   }
+define PRODUCER_IS_NETWORKS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Administration network
+# ------------------------------------------------------------
+
+# Administrative network, VPN range or bastion host authorised
+# to manage this Security Server.
+#
+# Used by the baseline for:
+#   TCP/22   SSH
+#   TCP/4000 X-Road Admin UI / Management REST API
+#
+# TCP/4000 must not be exposed directly to an untrusted network.
+# Example with one network:
+#   define ADMIN_NETWORKS = { 10.30.30.0/24 }
+#
+# Example with management LAN and VPN:
+#   define ADMIN_NETWORKS = {
+#       10.30.30.0/24,
+#       10.40.40.0/24
+#   }
+define ADMIN_NETWORKS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# DNS resolvers
+# ------------------------------------------------------------
+
+# Approved DNS resolver address(es).
+#
+# With default-deny outbound filtering, name resolution will
+# fail unless the configured resolver is permitted here.
+#
+# Verify the active resolver configuration with:
+#   resolvectl status
+# Example with redundant DNS resolvers:
+#   define DNS_SERVERS = {
+#       10.0.0.53,
+#       10.0.0.54
+#   }
+define DNS_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# NTP servers
+# ------------------------------------------------------------
+
+# Approved time synchronisation server(s).
+#
+# Accurate system time is required for reliable certificate
+# validation, timestamping, signatures and audit records.
+#
+# Verify the active configuration with:
+#   timedatectl status
+#   timedatectl timesync-status
+# Example with redundant NTP servers:
+#   define NTP_SERVERS = {
+#       10.0.0.123,
+#       10.0.0.124
+#   }
+define NTP_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Mail server
+# ------------------------------------------------------------
+
+# Approved SMTP submission server used for X-Road alerts or
+# operational notifications.
+#
+# The firewall permits SMTP submission only to the destinations
+# listed here.
+# Example:
+#   define MAIL_SERVERS = { 10.0.0.25 }
+define MAIL_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# OCSP responders
+# ------------------------------------------------------------
+
+# Approved OCSP responder address(es) used for certificate
+# revocation-status validation.
+#
+# Obtain the authoritative endpoints from the X-Road Operator
+# or Trust Service Provider.
+#
+# If an endpoint uses dynamic addressing that cannot be safely
+# represented by an IP allowlist, document the required
+# exception and its compensating controls.
+# Example with multiple OCSP responders:
+#   define OCSP_SERVERS = {
+#       198.51.100.10,
+#       198.51.100.11
+#   }
+define OCSP_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Timestamping services
+# ------------------------------------------------------------
+
+# Approved Timestamp Authority (TSA) address(es).
+#
+# Obtain the authoritative endpoints from the X-Road Operator
+# or Trust Service Provider.
+# Example with multiple TSA endpoints:
+#   define TSA_SERVERS = {
+#       198.51.100.20,
+#       198.51.100.21
+#   }
+define TSA_SERVERS = {
+    CHANGE_ME
+}
+
+
+# ------------------------------------------------------------
+# Package repositories
+# ------------------------------------------------------------
+
+# Approved Ubuntu and X-Road package repository destinations.
+#
+# If repositories use CDNs or dynamically changing addresses,
+# static IP allowlisting may not be operationally appropriate.
+# Document the approved alternative instead of enabling
+# unrestricted outbound HTTP/HTTPS without review.
+# Example with separate Ubuntu and X-Road repositories:
+#   define PACKAGE_REPOSITORIES = {
+#       10.0.0.80,
+#       10.0.0.81
+#   }
+define PACKAGE_REPOSITORIES = {
+    CHANGE_ME
+}

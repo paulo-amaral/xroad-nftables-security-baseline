@@ -8,8 +8,9 @@ It adapts UFW-based guidance to `nftables` and is intended as a deployment templ
 
 | File | Description |
 | --- | --- |
-| [`xroad-nftables-security-baseline.md`](xroad-nftables-security-baseline.md) | The baseline (source) |
-| [`xroad-nftables-security-baseline.html`](xroad-nftables-security-baseline.html) | Self-contained HTML rendering of the baseline |
+| [`xroad-nftables-security-baseline.md`](xroad-nftables-security-baseline.md) | The baseline |
+| [`nftables/`](nftables/) | Policy (`nftables.conf`) and variables template, extracted from the baseline |
+| [`install-xroad-nftables.sh`](install-xroad-nftables.sh) | Installation script |
 
 The baseline covers:
 
@@ -39,8 +40,9 @@ Read the full baseline first. Applying a default-deny policy over a remote sessi
 
    ```bash
    sudo nft -c -f /etc/nftables.conf
-   grep -nE 'CHANGE_ME|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.' \
-     /etc/nftables.conf /etc/nftables.d/xroad-variables.nft
+   grep -nHE 'CHANGE_ME|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.' \
+     /etc/nftables.conf /etc/nftables.d/xroad-variables.nft \
+     | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'   # no output = ready
    ```
 
 4. Keep a second SSH session and out-of-band console access open, then apply:
@@ -52,6 +54,22 @@ Read the full baseline first. Applying a default-deny policy over a remote sessi
 5. Test, then enable persistence (`sudo systemctl enable nftables`).
 
 Section 17 has the complete procedure, and section 19 the verification checklist.
+
+### Installation script
+
+[`install-xroad-nftables.sh`](install-xroad-nftables.sh) automates the steps above with the files in [`nftables/`](nftables/):
+
+```bash
+sudo ./install-xroad-nftables.sh            # install, back up, validate; applies nothing
+sudoedit /etc/nftables.d/xroad-variables.nft
+sudo ./install-xroad-nftables.sh            # validates again
+sudo ./install-xroad-nftables.sh --apply    # apply; type "yes" within 120 s to keep
+```
+
+- An existing `xroad-variables.nft` is never overwritten.
+- `--apply` refuses to run while UFW is active (section 18).
+- Without confirmation, or if the SSH session drops, the previous ruleset is restored after `--timeout` seconds (default 120).
+- Backups go to `/var/backups/xroad-nftables/<timestamp>-<pid>/`.
 
 ## Before production
 
